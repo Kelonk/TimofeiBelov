@@ -2,7 +2,6 @@ name: Simple CI job
 
 on:
   push:
-    branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
 
@@ -12,5 +11,7 @@ jobs:
     steps:
       - name: Print message to console
         run: |
-          echo "Hello, world!"
-          echo "Hello, everyone!"
+          echo "Hello World!"
+          echo "Adjustment - date added"
+          current_date_time=$(date)
+          echo "Current date and time: $current_date_time"
