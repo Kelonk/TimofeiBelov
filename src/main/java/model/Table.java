@@ -1,21 +1,20 @@
-package main.java.model;
+package model;
 
-public class Table {
-
-    public int width = 100;
-    public int length = 100;
+public class Table extends Furniture {
+    @Override
+    public String getName() {
+        return "Table";
+    }
 
     public Table(){
-        System.out.println("New table appeared in this world");
+        super();
     }
 
     public Table(int width, int length){
-        System.out.println("New table appeared in this world");
-        this.width = width;
-        this.length = length;
+        super(width, length);
     }
 
-    public int getArea(){
-        return width * length;
+    public Table(int width, int length, boolean isCircular){
+        super(width, length, isCircular);
     }
 }
