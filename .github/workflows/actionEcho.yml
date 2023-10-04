@@ -1,0 +1,16 @@
+name: Time of Action
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print message to console
+        run: |
+          echo "Hello World!"
+          echo "Adjustment - date added"
+          current_date_time=$(date)
+          echo "Current date and time: $current_date_time"
