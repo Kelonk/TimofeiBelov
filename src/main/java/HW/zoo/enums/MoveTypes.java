@@ -9,7 +9,7 @@ public enum MoveTypes {
         this.actionName = actionName;
     }
 
-    public String GetName(){
+    public String getName(){
         return this.actionName;
     }
 }

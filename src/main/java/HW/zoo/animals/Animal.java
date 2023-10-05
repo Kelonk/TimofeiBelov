@@ -36,9 +36,9 @@ public class Animal implements Creature{
     }
 
     @Override
-    public void Eat(Food food) {
-        if (!CanEat(food)){
-            PrintRefuseToEat(food);
+    public void eat(Food food) {
+        if (!canEat(food)){
+            printRefuseToEat(food);
             return;
         }
         ArrayList<String> phrases = new ArrayList<>();
@@ -48,45 +48,45 @@ public class Animal implements Creature{
         phrases.add("%s is unsure but still decides to eat this %s%n");
 
         System.out.printf(phrases.get(ThreadLocalRandom.current().nextInt(phrases.size())),
-                GetUpperName(true),
-                food.GetName());
+                getUpperName(true),
+                food.getName());
     }
 
     @Override
-    public void Move(MoveTypes move) {
+    public void move(MoveTypes move) {
         if (!moveLimit.contains(move)){
-            PrintRefuseToMove(move);
+            printRefuseToMove(move);
             return;
         }
         switch (move){
             case Air -> {
-                System.out.printf("%s flies%n", GetUpperName(true));
+                System.out.printf("%s flies%n", getUpperName(true));
             }
             case Land -> {
-                System.out.printf("%s walks%n", GetUpperName(true));
+                System.out.printf("%s walks%n", getUpperName(true));
             }
             case Water -> {
-                System.out.printf("%s swims%n", GetUpperName(true));
+                System.out.printf("%s swims%n", getUpperName(true));
             }
         }
     }
 
-    public void Move(){
+    public void move(){
         if (moveLimit != null){
-            Move(moveLimit.get(0));
+            move(moveLimit.get(0));
         } else {
-            System.out.printf("%s can't move!%n", GetUpperName(true));
+            System.out.printf("%s can't move!%n", getUpperName(true));
         }
     }
 
-    public boolean CanEat(Food food){
+    public boolean canEat(Food food){
         boolean answer = false;
         switch (diet){
             case Carnivore -> {
-                answer = food.IsMeat();
+                answer = food.isMeat();
             }
             case Herbivore -> {
-                answer = !food.IsMeat();
+                answer = !food.isMeat();
             }
             case Omnivore -> {
                 answer = true;
@@ -98,16 +98,16 @@ public class Animal implements Creature{
         return answer;
     }
 
-    private void PrintRefuseToEat(Food food){
-        System.out.printf("%s refuses to eat %s -> It %s%n", GetUpperName(true), food.GetName(),
-                (diet.equals(DietTypes.Specific) ? "has " : "is ") + diet.GetName());
+    private void printRefuseToEat(Food food){
+        System.out.printf("%s refuses to eat %s -> It %s%n", getUpperName(true), food.getName(),
+                (diet.equals(DietTypes.Specific) ? "has " : "is ") + diet.getName());
     }
 
-    private void PrintRefuseToMove(MoveTypes move){
-        System.out.printf("%s can't %s%n", GetUpperName(true), move.GetName());
+    private void printRefuseToMove(MoveTypes move){
+        System.out.printf("%s can't %s%n", getUpperName(true), move.getName());
     }
 
-    private String GetUpperName(boolean speciesName){
+    private String getUpperName(boolean speciesName){
         String toReturn;
         if (speciesName && this.speciesName != null){
             toReturn = this.speciesName;

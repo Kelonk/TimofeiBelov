@@ -13,23 +13,23 @@ public class CheckScript {
         Animal eagle = new Animal("eagle", DietTypes.Carnivore, null, new MoveTypes[]{MoveTypes.Air, MoveTypes.Land});
         Animal camel = new Animal("camel", DietTypes.Herbivore, null, new MoveTypes[]{MoveTypes.Land});
 
-        dolphin.Move(MoveTypes.Water);
-        dolphin.Eat(Food.Grass);
-        dolphin.Eat(Food.Fish);
+        dolphin.move(MoveTypes.Water);
+        dolphin.eat(Food.Grass);
+        dolphin.eat(Food.Fish);
 
-        tiger.Move(MoveTypes.Water);
-        tiger.Move(MoveTypes.Land);
-        tiger.Eat(Food.Beef);
-        tiger.Eat(Food.Meat);
+        tiger.move(MoveTypes.Water);
+        tiger.move(MoveTypes.Land);
+        tiger.eat(Food.Beef);
+        tiger.eat(Food.Meat);
 
-        horse.Move(MoveTypes.Land);
-        horse.Eat(Food.Grass);
+        horse.move(MoveTypes.Land);
+        horse.eat(Food.Grass);
 
-        eagle.Move(MoveTypes.Air);
-        eagle.Eat(Food.Meat);
-        eagle.Eat(Food.Beef);
-        eagle.Eat(Food.Fish);
+        eagle.move(MoveTypes.Air);
+        eagle.eat(Food.Meat);
+        eagle.eat(Food.Beef);
+        eagle.eat(Food.Fish);
 
-        camel.Eat(Food.Grass);
+        camel.eat(Food.Grass);
     }
 }

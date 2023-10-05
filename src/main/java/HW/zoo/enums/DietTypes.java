@@ -12,7 +12,7 @@ public enum DietTypes {
         this.printName = printName;
     }
 
-    public String GetName(){
+    public String getName(){
         return this.printName;
     }
 }

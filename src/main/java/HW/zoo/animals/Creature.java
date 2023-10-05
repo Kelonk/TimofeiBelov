@@ -4,6 +4,6 @@ import HW.zoo.enums.Food;
 import HW.zoo.enums.MoveTypes;
 
 public interface Creature {
-    void Eat(Food food);
-    void Move(MoveTypes move);
+    void eat(Food food);
+    void move(MoveTypes move);
 }

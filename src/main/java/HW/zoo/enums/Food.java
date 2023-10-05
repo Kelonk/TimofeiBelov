@@ -14,11 +14,11 @@ public enum Food {
         this.printName = printName;
     }
 
-    public boolean IsMeat(){
+    public boolean isMeat(){
         return this.meat;
     }
 
-    public String GetName(){
+    public String getName(){
         return this.printName;
     }
 }
