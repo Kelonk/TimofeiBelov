@@ -4,10 +4,10 @@ import HW.testing.enums.SortMethods;
 
 import java.util.List;
 
-public class BubbleSort implements SortAction<Integer>{
+public class BubbleSort implements SortAction{
     private final Integer limit;
 
-    BubbleSort(int limit){
+    public BubbleSort(int limit){
         this.limit = limit;
     }
 
@@ -22,14 +22,15 @@ public class BubbleSort implements SortAction<Integer>{
     }
 
     @Override
-    public List<Integer> sort(List<Integer> listToSort) {
-        List<Integer> copiedList = getCopy(listToSort);
+    public <T extends Comparable> List<T> sort(List<T> listToSort) {
+        List<T> copiedList = getCopy(listToSort);
         if (copiedList == null) { return null; }
+        if (copiedList.size() > limit) { throw new IllegalArgumentException("List size exceeded sort method limit"); }
 
         for (int i = 0; i < copiedList.size(); i++) {
             for (int j = i + 1; j < copiedList.size(); j++) {
-                if (copiedList.get(i) > copiedList.get(j)) {
-                    int temp = copiedList.get(i);
+                if (copiedList.get(i).compareTo(copiedList.get(j)) > 0) {
+                    T temp = copiedList.get(i);
                     copiedList.set(i, copiedList.get(j));
                     copiedList.set(j, temp);
                 }

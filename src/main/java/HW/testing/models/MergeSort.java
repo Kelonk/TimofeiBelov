@@ -5,10 +5,10 @@ import HW.testing.enums.SortMethods;
 import java.util.Collections;
 import java.util.List;
 
-public class MergeSort implements SortAction<Integer>{
+public class MergeSort implements SortAction{
     private final Integer limit;
 
-    MergeSort(int limit){
+    public MergeSort(int limit){
         this.limit = limit;
     }
 
@@ -23,9 +23,10 @@ public class MergeSort implements SortAction<Integer>{
     }
 
     @Override
-    public List<Integer> sort(List<Integer> listToSort) {
-        List<Integer> copiedList = getCopy(listToSort);
+    public <T extends Comparable> List<T> sort(List<T> listToSort) {
+        List<T> copiedList = getCopy(listToSort);
         if (copiedList == null) { return null; }
+        if (copiedList.size() > limit) { throw new IllegalArgumentException("List size exceeded sort method limit"); }
 
         Collections.sort(copiedList);
         return  copiedList;
