@@ -1,7 +1,6 @@
 package HW.testing.models;
 
 import HW.testing.enums.SortMethods;
-
 import java.util.List;
 
 public class BubbleSort implements SortAction{
