@@ -8,7 +8,7 @@ import HW.testing.models.SortService;
 
 import java.util.List;
 
-public class CheckScript {
+public class Main {
 
     public static void main(String[] args) {
         SortAction sort1 = new BubbleSort(10);
@@ -29,11 +29,18 @@ public class CheckScript {
 
         List<Integer> listToSort = List.of(10, 5, 10, 30, 55, -15, 30, 100000);
 
+        System.out.println("Initial list is:");
+        for(Integer value: listToSort){
+            System.out.print(value + " ");
+        }
+        System.out.println();
+
         try{
             // decided not to make many tries and itteration through a list of dictionaries
             // with tries information (to wrap try-catch in it)
             // because how they work will be tested in Tests anyway...
-            for(Integer value: sortService1.sortWith(SortMethods.Bubble, listToSort)){
+            System.out.println("Sort with Buddle method:");
+            for(Integer value: sortService2.sortWith(SortMethods.Bubble, listToSort)){
                 System.out.print(value + " ");
             }
             System.out.println();
