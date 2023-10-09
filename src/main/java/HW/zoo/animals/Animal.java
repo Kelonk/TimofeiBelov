@@ -16,7 +16,7 @@ public class Animal implements Creature{
     public final List<Food> foodLimit;
     public final List<MoveTypes> moveLimit;
 
-    public Animal(String name, String speciesName, DietTypes diet, Food[] foodLimit, MoveTypes[] moveLimit) {
+    public Animal(String name, String speciesName, DietTypes diet, List<Food> foodLimit, List<MoveTypes> moveLimit) {
         if (diet == DietTypes.Specific && foodLimit == null){
             throw new RuntimeException("Animal can't eat nothing");
         }
@@ -27,11 +27,11 @@ public class Animal implements Creature{
         this.name = name;
         this.speciesName = speciesName;
         this.diet = diet;
-        this.foodLimit = foodLimit == null ? null : Arrays.asList(foodLimit);
-        this.moveLimit = moveLimit == null ? null : Arrays.asList(moveLimit);
+        this.foodLimit = foodLimit;
+        this.moveLimit = moveLimit;
     }
 
-    public Animal(String speciesName, DietTypes diet, Food[] foodLimit, MoveTypes[] moveLimit){
+    public Animal(String speciesName, DietTypes diet, List<Food> foodLimit, List<MoveTypes> moveLimit){
         this(null, speciesName, diet, foodLimit, moveLimit);
     }
 
