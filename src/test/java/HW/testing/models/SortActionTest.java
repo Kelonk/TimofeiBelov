@@ -29,7 +29,8 @@ class SortActionTest {
         List<Integer> integerList = List.of(1, 2 ,3, -10, 33);
         List<Integer> returnList = sortAction.getCopy(integerList);
 
-        Assertions.assertNotEquals(integerList, returnList);
         Assertions.assertArrayEquals(integerList.toArray(), returnList.toArray());
+        returnList.set(0, null);
+        Assertions.assertNotNull(integerList.get(0));
     }
 }
