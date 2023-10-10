@@ -2,7 +2,6 @@ name: Time of Action
 
 on:
   push:
-  pull_request:
 
 jobs:
   build:
