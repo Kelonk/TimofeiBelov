@@ -4,6 +4,7 @@ import HW.concurrency.enums.EnrichType;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -29,5 +30,14 @@ public class Message {
     answer += "Following enrich types: " + message.enrichTypes.stream().map(Enum::toString).collect(Collectors.joining(" "));
     answer += "Following content:\n" + message.content.entrySet().stream().map(Object::toString).collect(Collectors.joining("\n"));
     return answer;
+  }
+
+  public static Map<String, String> generateRandomContent(){
+    Random random = new Random();
+    Map<String, String> content = new HashMap<>();
+    content.put("message", Integer.toString(random.nextInt(-1000, 1000)));
+    content.put("page", Integer.toString(random.nextInt(-1000, 1000)));
+    content.put("actionNumber", Integer.toString(random.nextInt(-1000, 1000)));
+    return content;
   }
 }

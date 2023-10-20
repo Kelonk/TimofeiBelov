@@ -17,6 +17,9 @@ public class EnrichMSISDN implements EnrichAction{
 
   @Override
   public Map<String, String> enrich(UserRepository userRepository, Message message) {
+    if (userRepository == null || message == null) {
+      throw new IllegalArgumentException("Null parameters were provided to enrich");
+    }
     String filterField = enrichType().getMapField();
     Map<String, String> input = message.getContent();
     if (!input.containsKey(filterField)) {
