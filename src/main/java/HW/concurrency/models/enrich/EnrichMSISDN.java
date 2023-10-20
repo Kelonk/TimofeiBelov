@@ -16,7 +16,7 @@ public class EnrichMSISDN implements EnrichAction{
   }
 
   @Override
-  public void enrich(UserRepository userRepository, Message message) {
+  public Map<String, String> enrich(UserRepository userRepository, Message message) {
     String filterField = enrichType().getMapField();
     Map<String, String> input = message.getContent();
     if (!input.containsKey(filterField)) {
@@ -27,8 +27,8 @@ public class EnrichMSISDN implements EnrichAction{
       input.put(field, user.getInfoAtField(field)); // will throw error if no such field
     }
     //Message newMessage = new Message(input, message.enrichTypes);
-    message.setContent(input);
-    //return message;
+    //message.setContent(input);
+    return input;
   }
 
   private List<String> fieldsToEdit() {

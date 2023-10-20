@@ -8,5 +8,5 @@ import java.util.Map;
 
 public interface EnrichAction {
   EnrichType enrichType();
-  void enrich(UserRepository userRepository, Message message);
+  Map<String, String> enrich(UserRepository userRepository, Message message);
 }

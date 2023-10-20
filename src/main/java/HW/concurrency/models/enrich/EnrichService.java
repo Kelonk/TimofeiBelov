@@ -4,12 +4,14 @@ import HW.concurrency.enums.EnrichType;
 import HW.concurrency.models.Message;
 import HW.concurrency.models.user.UserRepository;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class EnrichService {
-  private final Map<EnrichType, List<EnrichAction>> enrichActionMap;
+  private final Map<EnrichType, EnrichAction> enrichActionMap;
   private final List<EnrichAction> enrichActionList;
   private final UserRepository userRepository;
 
@@ -22,27 +24,31 @@ public class EnrichService {
     }
     this.enrichActionList = enrichActionList;
     this.userRepository = userRepository;
-    this.enrichActionMap = enrichActionList.stream().collect(Collectors.groupingBy(EnrichAction::enrichType));
+    Set<EnrichType> enrichSet = new HashSet<>();
+    this.enrichActionMap = enrichActionList.stream()
+            .filter(e -> enrichSet.add(e.enrichType()))
+            .collect(Collectors.toMap(e -> e.enrichType(), e -> e));
   }
 
-  public void enrich(Message message){
+  public Message enrich(Message message){
     if (message == null) {
       throw new IllegalArgumentException("Tried to enrich null");
     }
+    Message messageCopy = null;
     synchronized (message) {
+      messageCopy = new Message(message.getContent(), message.enrichTypes);
       int enrichCounter = 0;
       for (EnrichType enrichType : message.enrichTypes) {
-        for (EnrichAction enrichAction : enrichActionMap.getOrDefault(enrichType, List.of())) {
-          try {
-            enrichAction.enrich(userRepository, message);
-            enrichCounter += 1;
-            break;
-          } catch (RuntimeException e) {
-            System.out.println(e.getMessage());
-          }
+        EnrichAction enrichAction = enrichActionMap.getOrDefault(enrichType, null);
+        try {
+          messageCopy.setContent(enrichAction.enrich(userRepository, message));
+          enrichCounter += 1;
+        } catch (RuntimeException e) {
+          System.out.println(e.getMessage());
         }
       }
       System.out.printf("Out of %d enrichments to make %d were successful%n", message.enrichTypes.size(), enrichCounter);
     }
+    return messageCopy;
   }
 }
