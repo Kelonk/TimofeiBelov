@@ -18,11 +18,15 @@ public class Message {
   }
 
   public Map<String, String> getContent() {
-    return new HashMap<>(content);
+    synchronized (this){
+      return new HashMap<>(content);
+    }
   }
 
   public void setContent(Map<String, String> content) {
-    this.content = content;
+    synchronized (this) {
+      this.content = new HashMap<>(content);
+    }
   }
 
   public static String toString(Message message){
