@@ -7,16 +7,13 @@ import HW.concurrency.models.user.UserRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class EnrichTestDefault {
 
   public static UserRepository emptyUserRepository(){
     UserRepository userRepository = new UserRepository() {
-      private List<User> users;
+      private List<User> users = new ArrayList<>();
 
       @Override
       public User findByField(String field, String value) {

@@ -19,7 +19,7 @@ public class EnrichService {
     if (enrichActionList == null || enrichActionList.size() == 0 || userRepository == null) {
       throw new IllegalArgumentException("EnrichService has requirements for its values: " +
               " not null enrichActionList " + Boolean.toString(enrichActionList == null) +
-              " not empty enrichActionList " + Boolean.toString(enrichActionList.size() == 0) +
+              " not empty enrichActionList " + Boolean.toString(enrichActionList == null || enrichActionList.size() == 0) +
               " not null userRepository " + Boolean.toString(userRepository == null));
     }
     this.enrichActionList = enrichActionList;

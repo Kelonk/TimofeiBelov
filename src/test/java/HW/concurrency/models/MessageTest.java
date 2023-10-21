@@ -46,6 +46,6 @@ class MessageTest {
   @Test
   void testToString() {
     generateTestMessage(null, null);
-    Assertions.assertDoesNotThrow(() -> testMessage.toString());
+    Assertions.assertNotNull(Message.toString(testMessage));
   }
 }
