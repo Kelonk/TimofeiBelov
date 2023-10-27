@@ -3,17 +3,20 @@ package HW.concurrency.models;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
+import java.util.logging.StreamHandler;
 
-public class Producer implements Runnable {
-  private final Logger logger = new Logger(Producer.class.getSimpleName());
+public class Producer extends Thread {
+  private final Logger logger = Logger.getLogger(Producer.class.getSimpleName());
   private final Set<Worker> workers;
   private final TaskPool taskPool;
   private final int taskGiveTime;
   private final int minTaskValue;
   private final int maxTaskValue;
 
-  Producer(TaskPool taskPool, Set<Worker> workers, int taskGiveTime, int minTaskValue, int maxTaskValue) {
+  public Producer(TaskPool taskPool, Set<Worker> workers, int taskGiveTime, int minTaskValue, int maxTaskValue) {
     if (workers == null || taskPool == null) {
       throw new IllegalArgumentException("Null given to producer");
     }
@@ -36,19 +39,27 @@ public class Producer implements Runnable {
   public void run() {
     while (true) {
       if (!Thread.currentThread().isInterrupted()) {
-        taskPool.addTask(getRandomTaskValue());
+        int value = getRandomTaskValue();
+        logger.info("Dispatched task with value: " + value);
+        taskPool.addTask(value);
         try {
           Thread.sleep(taskGiveTime);
         } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
           continue;
         }
       } else {
+        logger.info("Producer was interrupted");
         // interrupt workers and so on
+        for (Worker worker : workers) {
+          worker.interrupt();
+        }
+        break;
       }
     }
   }
 
-  private float getRandomTaskValue(){
-    return ThreadLocalRandom.current().nextFloat(minTaskValue, maxTaskValue);
+  private int getRandomTaskValue(){
+    return ThreadLocalRandom.current().nextInt(minTaskValue, maxTaskValue);
   }
 }
