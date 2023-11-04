@@ -28,5 +28,10 @@ public class CommentRepositoryMap implements CommentRepository {
   public void delete(CommentID id){
     comments.remove(id);
   }
+
+  @Override
+  public void replace(Comment comment) {
+    comments.put(comment.id, comment);
+  }
 }
 

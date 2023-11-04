@@ -10,4 +10,5 @@ public interface CommentRepository {
   public List<Comment> getComments();
   public Optional<Comment> findComment(long id);
   public void delete(CommentID id);
+  public void replace(Comment comment);
 }

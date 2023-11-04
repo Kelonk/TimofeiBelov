@@ -9,5 +9,6 @@ public interface ArticleRepository {
   public void addArticle(Article article);
   public List<Article> getArticles();
   public Optional<Article> findArticle(long id);
-  public void delete(ArticleID id);
+  public void delete(ArticleID id, CommentRepository commentRepository);
+  public void replace(Article article);
 }

@@ -99,10 +99,10 @@ public class ArticleController implements Controller{
           return objectMapper.writeValueAsString(Map.of("Message", "Couldn't process your add request"));
         }
         Article article = new Article(
-            articleRepository,
             articleCreateRequest.name(),
             articleCreateRequest.tags(),
             new ArrayList<>());
+        articleRepository.addArticle(article);
         response.type("application/json");
         return objectMapper.writeValueAsString(article);
       } catch (Exception e) {
@@ -134,7 +134,7 @@ public class ArticleController implements Controller{
           response.type("application/json");
           return objectMapper.writeValueAsString(Map.of("Message", "No article with id " + id));
         } else {
-          articleRepository.delete(article.get().id);
+          articleRepository.delete(article.get().id, commentRepository);
           response.type("application/json");
           return objectMapper.writeValueAsString(Map.of("Message", "Successfully deleted article with id " + id));
         }
@@ -187,12 +187,11 @@ public class ArticleController implements Controller{
           }
           if (articleEditRequest.add()) {
             Comment comment = new Comment(
-                articleRepository,
-                commentRepository,
                 newArticle.id,
                 articleEditRequest.commentContent());
             newArticle = newArticle.attachComment(comment);
           }
+          articleRepository.replace(newArticle);
           response.type("application/json");
           return objectMapper.writeValueAsString(newArticle);
         }

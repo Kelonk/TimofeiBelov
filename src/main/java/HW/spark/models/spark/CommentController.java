@@ -1,5 +1,6 @@
 package HW.spark.models.spark;
 
+import HW.spark.models.holders.Article;
 import HW.spark.models.holders.ArticleRepository;
 import HW.spark.models.holders.CommentRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -63,12 +64,15 @@ public class CommentController implements Controller {
           response.type("application/json");
           return objectMapper.writeValueAsString(Map.of("Message", "No comment with id " + id));
         } else {
+          Article newArticle;
           try {
-            articleRepository.findArticle(comment.get().articleID.getId()).get().deleteComment(id);
+            newArticle = articleRepository.findArticle(comment.get().articleID.getId()).get().deleteComment(id);
+            articleRepository.replace(newArticle);
           } catch (NoSuchElementException e) {
-            comment.get().remove();
             response.type("application/json");
             return objectMapper.writeValueAsString(Map.of("Message", "Comment removed but no attachment to article"));
+          } finally {
+            commentRepository.delete(comment.get().id);
           }
           response.type("application/json");
           return objectMapper.writeValueAsString(Map.of("Message", "Comment removed"));
