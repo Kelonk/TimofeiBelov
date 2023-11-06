@@ -147,7 +147,7 @@ public class ArticleController implements Controller{
   }
 
   private void editArticleEndpoint(){
-    service.patch("/api/articles/edit/:articleID", (Request request, Response response) -> {
+    service.post("/api/articles/edit/:articleID", (Request request, Response response) -> {
       try {
         log.debug("Request to edit article");
         String body = request.body();

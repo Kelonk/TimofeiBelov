@@ -5,9 +5,20 @@ import HW.spark.models.id.CommentID;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class CommentRepositoryMap implements CommentRepository {
+
   private ConcurrentHashMap<CommentID, Comment> comments = new ConcurrentHashMap<>();
+  private final AtomicLong counter;
+
+  public CommentRepositoryMap(AtomicLong counter) {
+    this.counter = counter;
+  }
+
+  public CommentRepositoryMap() {
+    this.counter = new AtomicLong(0);
+  }
 
   @Override
   public void addComment(Comment comment){
@@ -32,6 +43,11 @@ public class CommentRepositoryMap implements CommentRepository {
   @Override
   public void replace(Comment comment) {
     comments.put(comment.id, comment);
+  }
+
+  @Override
+  public long getNewID() {
+    return counter.incrementAndGet();
   }
 }
 

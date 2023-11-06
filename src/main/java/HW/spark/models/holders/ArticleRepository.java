@@ -11,4 +11,5 @@ public interface ArticleRepository {
   public Optional<Article> findArticle(long id);
   public void delete(ArticleID id, CommentRepository commentRepository);
   public void replace(Article article);
+  public long getNewID();
 }

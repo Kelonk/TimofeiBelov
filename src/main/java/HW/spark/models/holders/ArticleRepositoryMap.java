@@ -5,9 +5,20 @@ import HW.spark.models.id.ArticleID;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class ArticleRepositoryMap implements ArticleRepository {
+
   private ConcurrentHashMap<ArticleID, Article> articles = new ConcurrentHashMap<>();
+  private final AtomicLong counter;
+
+  public ArticleRepositoryMap(AtomicLong counter) {
+    this.counter = counter;
+  }
+
+  public ArticleRepositoryMap() {
+    this.counter = new AtomicLong(0);
+  }
 
   @Override
   public void addArticle(Article article){
@@ -36,5 +47,10 @@ public class ArticleRepositoryMap implements ArticleRepository {
   @Override
   public void replace(Article article) {
     articles.put(article.id, article);
+  }
+
+  @Override
+  public long getNewID() {
+    return counter.incrementAndGet();
   }
 }
