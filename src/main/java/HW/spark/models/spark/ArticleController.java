@@ -101,7 +101,8 @@ public class ArticleController implements Controller{
         Article article = new Article(
             articleCreateRequest.name(),
             articleCreateRequest.tags(),
-            new ArrayList<>());
+            new ArrayList<>(),
+            articleRepository.getNewID());
         articleRepository.addArticle(article);
         response.type("application/json");
         return objectMapper.writeValueAsString(article);
@@ -188,7 +189,8 @@ public class ArticleController implements Controller{
           if (articleEditRequest.add()) {
             Comment comment = new Comment(
                 newArticle.id,
-                articleEditRequest.commentContent());
+                articleEditRequest.commentContent(),
+                commentRepository.getNewID());
             newArticle = newArticle.attachComment(comment);
           }
           articleRepository.replace(newArticle);
