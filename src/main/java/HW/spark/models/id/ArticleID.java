@@ -1,9 +1,13 @@
 package HW.spark.models.id;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class ArticleID implements ID{
   private final long id;
 
-  public ArticleID(long id){
+  @JsonCreator
+  public ArticleID(@JsonProperty("id") long id){
     this.id = id;
   }
 

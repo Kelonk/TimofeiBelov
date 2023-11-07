@@ -2,6 +2,8 @@ package HW.spark.models.holders;
 
 import HW.spark.models.id.ArticleID;
 import HW.spark.models.id.CommentID;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Objects;
 
@@ -9,6 +11,16 @@ public class Comment {
   public final CommentID id;
   public final ArticleID articleID;
   public final String content;
+
+  @JsonCreator Comment(
+      @JsonProperty("id") CommentID id,
+      @JsonProperty("articleID") ArticleID articleID,
+      @JsonProperty("content") String content
+  ){
+    this.id = id;
+    this.articleID = articleID;
+    this.content = content;
+  }
 
   public Comment(ArticleID articleID, String content, long id) {
     if (articleID == null || content == null) {

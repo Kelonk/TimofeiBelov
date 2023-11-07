@@ -2,14 +2,30 @@ package HW.spark.models.holders;
 
 import HW.spark.models.id.ArticleID;
 import HW.spark.models.id.CommentID;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Article {
   public final String name;
   public final ArticleID id;
   public final Set<String> tags;
   public final List<Comment> comments;
+
+  @JsonCreator Article(
+      @JsonProperty("name") String name,
+      @JsonProperty("id") ArticleID id,
+      @JsonProperty("tags") Set<String> tags,
+      @JsonProperty("comments") List<Comment> comments
+  ){
+    this.name = name;
+    this.id = id;
+    this.tags = tags;
+    this.comments = comments;
+  }
 
   public Article(String name, Set<String> tags, List<Comment> comments, long id) {
     if (name == null || tags == null || comments == null) {
@@ -40,8 +56,7 @@ public class Article {
     if (comments.stream().filter(e -> e.id == comment.id).findAny().isPresent()) {
       return this;
     }
-    List<Comment> newComments = new ArrayList<>();
-    Collections.copy(newComments, comments);
+    List<Comment> newComments = new ArrayList<>(comments);
     newComments.add(comment);
     // articles.put(id, newArticle);
     return new Article(name, tags, newComments, id);
@@ -52,9 +67,7 @@ public class Article {
     if (comment.isEmpty()) {
       return this;
     }
-    List<Comment> newComments = new ArrayList<>();
-    Collections.copy(newComments, comments);
-    newComments.remove(comment.get());
+    List<Comment> newComments = comment.stream().filter(e -> !e.equals(comment.get())).collect(Collectors.toList());
     return new Article(name, tags, newComments, id);
   }
 
