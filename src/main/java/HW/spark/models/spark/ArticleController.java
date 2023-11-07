@@ -6,6 +6,7 @@ import spark.Request;
 import spark.Response;
 import spark.Service;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -36,16 +37,9 @@ public class ArticleController implements Controller{
     addArticleEndpoint();
     deleteArticleEndpoint();
     editArticleEndpoint();
-    internalErrorHandle();
-  }
-
-  private void internalErrorHandle(){
-    service.internalServerError(((Request request, Response response) -> {
-      log.error("Unknown error happened " + response.body());
-      response.type("application/json");
-      response.status(500);
-      return response.body();
-    }));
+    DefaultControllerFunctions.internalErrorHandle(service, log);
+    DefaultControllerFunctions.parseExceptionHandle(service, log);
+    DefaultControllerFunctions.notFoundExceptionHandle(service, log);
   }
 
   private void listArticlesEndpoint(){
@@ -59,24 +53,13 @@ public class ArticleController implements Controller{
   private void searchArticleEndpoint(){
     service.get("/api/articles/:articleID", (Request request, Response response) -> {
       log.debug("Article by id requested");
-      long id;
-      try {
-        id = Long.parseLong(request.params("articleID"));
-      } catch (NumberFormatException e) {
-        response.status(404);
-        log.warn("Unrecognisable id: " + request.params("articleID"));
-        response.type("application/json");
-        return objectMapper.writeValueAsString(Map.of("Message", "Unrecognisable article id"));
-      }
+      response.type("application/json");
 
+      long id = DefaultControllerFunctions.parseLong(request.params("articleID"));
       var article = articleRepository.findArticle(id);
       if (article.isEmpty()) {
-        response.status(404);
-        log.warn("No article with id: " + request.params("articleID"));
-        response.type("application/json");
-        return objectMapper.writeValueAsString(Map.of("Message", "No article with id " + id));
+        throw new DefaultControllerFunctions.NotLocated(id, "No article with id: " + id);
       } else {
-        response.type("application/json");
         return objectMapper.writeValueAsString(article.get());
       }
     });
@@ -85,15 +68,14 @@ public class ArticleController implements Controller{
   private void addArticleEndpoint(){
     service.post("/api/articles/add", (Request request, Response response) -> {
       log.debug("Request to add an article");
+      response.type("application/json");
+
       String body = request.body();
       ArticleRecord articleCreateRequest;
       try {
         articleCreateRequest = objectMapper.readValue(body, ArticleRecord.class);
       } catch (Exception e) {
-        response.status(404);
-        log.warn("Problems with article values: " + request.body());
-        response.type("application/json");
-        return objectMapper.writeValueAsString(Map.of("Message", "Couldn't process your add request"));
+        throw new DefaultControllerFunctions.ParseError(request.body(), "Couldn't make article from body");
       }
       Article article = new Article(
           articleCreateRequest.name(),
@@ -101,7 +83,6 @@ public class ArticleController implements Controller{
           new ArrayList<>(),
           articleRepository.getNewID());
       articleRepository.addArticle(article);
-      response.type("application/json");
       return objectMapper.writeValueAsString(article);
     });
   }
@@ -109,25 +90,14 @@ public class ArticleController implements Controller{
   private void deleteArticleEndpoint(){
     service.delete("/api/articles/delete/:articleID", (Request request, Response response) -> {
       log.debug("Article delete request");
-      long id;
-      try {
-        id = Long.parseLong(request.params("articleID"));
-      } catch (NumberFormatException e) {
-        response.status(404);
-        log.warn("Unrecognisable id: " + request.params("articleID"));
-        response.type("application/json");
-        return objectMapper.writeValueAsString(Map.of("Message", "Unrecognisable article id"));
-      }
+      response.type("application/json");
 
+      long id = DefaultControllerFunctions.parseLong(request.params("articleID"));
       var article = articleRepository.findArticle(id);
       if (article.isEmpty()) {
-        response.status(404);
-        log.warn("No article with id: " + request.params("articleID"));
-        response.type("application/json");
-        return objectMapper.writeValueAsString(Map.of("Message", "No article with id " + id));
+        throw new DefaultControllerFunctions.NotLocated(id, "No article with id: " + id);
       } else {
         articleRepository.delete(article.get().id, commentRepository);
-        response.type("application/json");
         return objectMapper.writeValueAsString(Map.of("Message", "Successfully deleted article with id " + id));
       }
     });
@@ -136,33 +106,21 @@ public class ArticleController implements Controller{
   private void editArticleEndpoint(){
     service.post("/api/articles/edit/:articleID", (Request request, Response response) -> {
       log.debug("Request to edit article");
+      response.type("application/json");
+
       String body = request.body();
       ArticleEditRecord articleEditRequest;
       try {
         articleEditRequest = objectMapper.readValue(body, ArticleEditRecord.class);
       } catch (Exception e) {
-        response.status(404);
-        log.warn("Problems with edit values: " + request.body());
-        response.type("application/json");
-        return objectMapper.writeValueAsString(Map.of("Message", "Couldn't process your edit request"));
+        throw new DefaultControllerFunctions.ParseError(request.body(), "Couldn't make article from body");
       }
 
-      long id;
-      try {
-        id = Long.parseLong(request.params("articleID"));
-      } catch (NumberFormatException e) {
-        response.status(404);
-        log.warn("Unrecognisable id: " + request.params("articleID"));
-        response.type("application/json");
-        return objectMapper.writeValueAsString(Map.of("Message", "Unrecognisable article id"));
-      }
+      long id = DefaultControllerFunctions.parseLong(request.params("articleID"));
 
       var article = articleRepository.findArticle(id);
       if (article.isEmpty()) {
-        response.status(404);
-        log.warn("No article with id: " + request.params("articleID"));
-        response.type("application/json");
-        return objectMapper.writeValueAsString(Map.of("Message", "No article with id " + id));
+        throw new DefaultControllerFunctions.NotLocated(id, "No article with id: " + id);
       } else {
         Article newArticle = article.get();
         if (articleEditRequest.name() != null) {
@@ -180,7 +138,6 @@ public class ArticleController implements Controller{
           commentRepository.addComment(comment);
         }
         articleRepository.replace(newArticle);
-        response.type("application/json");
         return objectMapper.writeValueAsString(newArticle);
       }
     });

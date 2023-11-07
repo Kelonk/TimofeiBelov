@@ -35,55 +35,30 @@ public class CommentController implements Controller {
 
   private void initEndpoints(){
     deleteCommentEndpoint();
-    internalErrorHandle();
+    DefaultControllerFunctions.internalErrorHandle(service, log);
+    DefaultControllerFunctions.parseExceptionHandle(service, log);
+    DefaultControllerFunctions.notFoundExceptionHandle(service, log);
   }
-
-  private void internalErrorHandle(){
-    service.internalServerError(((Request request, Response response) -> {
-      log.error("Unknown error happened " + response.body());
-      response.type("application/json");
-      response.status(500);
-      return response.body();
-    }));
-  }
-
-  /*
-  private void editCommentEndpoint(){
-
-  }
-   */
 
   private void deleteCommentEndpoint(){
     service.get("/api/comments/delete/:commentID", (Request request, Response response) -> {
       log.debug("Delete comment by id");
-      long id;
-      try {
-        id = Long.parseLong(request.params("commentID"));
-      } catch (NumberFormatException e) {
-        response.status(404);
-        log.warn("Unrecognisable id: " + request.params("commentID"));
-        response.type("application/json");
-        return objectMapper.writeValueAsString(Map.of("Message", "Unrecognisable comment id"));
-      }
+      response.type("application/json");
 
+      long id = DefaultControllerFunctions.parseLong(request.params("commentID"));
       var comment = commentRepository.findComment(id);
       if (comment.isEmpty()) {
-        response.status(404);
-        log.warn("No comment with id: " + id);
-        response.type("application/json");
-        return objectMapper.writeValueAsString(Map.of("Message", "No comment with id " + id));
+        throw new DefaultControllerFunctions.NotLocated(id, "No comment with id: " + id);
       } else {
         Article newArticle;
         try {
           newArticle = articleRepository.findArticle(comment.get().articleID.getId()).get().deleteComment(id);
           articleRepository.replace(newArticle);
         } catch (NoSuchElementException e) {
-          response.type("application/json");
           return objectMapper.writeValueAsString(Map.of("Message", "Comment removed but no attachment to article"));
         } finally {
           commentRepository.delete(comment.get().id);
         }
-        response.type("application/json");
         return objectMapper.writeValueAsString(Map.of("Message", "Comment removed"));
       }
     });

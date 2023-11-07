@@ -17,12 +17,23 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ArticleControllerTest {
   private Service service;
+
+  private HttpResponse<String> createArticle(Service service, ObjectMapper objectMapper, String name, Set<String> tags) throws Exception {
+    return HttpClient.newHttpClient().send(
+        HttpRequest
+            .newBuilder()
+            .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(Map.of("name", name, "tags", tags))))
+            .uri(URI.create("http://localhost:%d/api/articles/add".formatted(service.port())))
+            .build(),
+        HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+  }
 
   @BeforeEach
   void setUp() {
