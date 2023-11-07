@@ -18,6 +18,7 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -31,6 +32,47 @@ class ArticleControllerTest {
             .newBuilder()
             .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(Map.of("name", name, "tags", tags))))
             .uri(URI.create("http://localhost:%d/api/articles/add".formatted(service.port())))
+            .build(),
+        HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+  }
+
+  private HttpResponse<String> deleteArticle(Service service, ObjectMapper objectMapper, String id) throws Exception {
+    return HttpClient.newHttpClient().send(
+        HttpRequest
+            .newBuilder()
+            .DELETE()
+            .uri(URI.create(("http://localhost:%d/api/articles/delete/" + id).formatted(service.port())))
+            .build(),
+        HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+  }
+
+  private HttpResponse<String> editArticle(Service service, ObjectMapper objectMapper, Map<Object, Object> body, String id) throws Exception {
+    return HttpClient.newHttpClient().send(
+        HttpRequest
+            .newBuilder()
+            .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(body)))
+            .uri(URI.create(("http://localhost:%d/api/articles/edit/" + id).formatted(service.port())))
+            .build(),
+        HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+  }
+
+  private List<Article> getArticles(Service service, ObjectMapper objectMapper) throws Exception {
+    HttpResponse<String> response = HttpClient.newHttpClient().send(
+        HttpRequest
+            .newBuilder()
+            .GET()
+            .uri(URI.create("http://localhost:%d/api/articles".formatted(service.port())))
+            .build(),
+        HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+    return objectMapper.readValue(response.body(), new TypeReference<List<Article>>() {});
+  }
+
+  private HttpResponse<String> getArticle(Service service, ObjectMapper objectMapper, String id) throws Exception {
+    return HttpClient.newHttpClient().send(
+        HttpRequest
+            .newBuilder()
+            .GET()
+            .uri(URI.create(("http://localhost:%d/api/articles/" + id).formatted(service.port())))
             .build(),
         HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
   }
@@ -59,22 +101,9 @@ class ArticleControllerTest {
         objectMapper);
     articleController.init();
 
-    HttpClient.newHttpClient().send(
-        HttpRequest
-            .newBuilder()
-            .POST(HttpRequest.BodyPublishers.ofString("{\"name\": \"meow\", \"tags\": [\"one\", \"two\"]}"))
-            .uri(URI.create("http://localhost:%d/api/articles/add".formatted(service.port())))
-            .build(),
-        HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+    createArticle(service, objectMapper, "meow", Set.of("one", "two"));
+    List<Article> articles = getArticles(service, objectMapper);
 
-    HttpResponse<String> response = HttpClient.newHttpClient().send(
-        HttpRequest
-            .newBuilder()
-            .GET()
-            .uri(URI.create("http://localhost:%d/api/articles".formatted(service.port())))
-            .build(),
-        HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-    List<Article> articles = objectMapper.readValue(response.body(), new TypeReference<List<Article>>() {});
     Assertions.assertEquals(articles.size(), 1);
     Assertions.assertEquals(articles.get(0).name, "meow");
     Assertions.assertEquals(articles.get(0).tags, Set.of("one", "two"));
@@ -93,40 +122,17 @@ class ArticleControllerTest {
         objectMapper);
     articleController.init();
 
-    HttpClient.newHttpClient().send(
-        HttpRequest
-            .newBuilder()
-            .POST(HttpRequest.BodyPublishers.ofString("{\"name\": \"meow\", \"tags\": [\"one\", \"two\"]}"))
-            .uri(URI.create("http://localhost:%d/api/articles/add".formatted(service.port())))
-            .build(),
-        HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+    createArticle(service, objectMapper, "meow", Set.of("one", "two"));
 
-    HttpResponse<String> fail = HttpClient.newHttpClient().send(
-        HttpRequest
-            .newBuilder()
-            .GET()
-            .uri(URI.create("http://localhost:%d/api/articles/asd123".formatted(service.port())))
-            .build(),
-        HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+    HttpResponse<String> fail = getArticle(service, objectMapper, "asd123");
     Assertions.assertEquals(fail.statusCode(), 404);
 
-    fail = HttpClient.newHttpClient().send(
-        HttpRequest
-            .newBuilder()
-            .GET()
-            .uri(URI.create("http://localhost:%d/api/articles/4".formatted(service.port())))
-            .build(),
-        HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+    fail = getArticle(service, objectMapper, "4");
     Assertions.assertEquals(fail.statusCode(), 404);
 
-    HttpResponse<String> response = HttpClient.newHttpClient().send(
-        HttpRequest
-            .newBuilder()
-            .GET()
-            .uri(URI.create("http://localhost:%d/api/articles/1".formatted(service.port())))
-            .build(),
-        HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+    HttpResponse<String> response = getArticle(service, objectMapper, "1");
     Article article = objectMapper.readValue(response.body(), Article.class);
+
     Assertions.assertEquals(article.name, "meow");
     Assertions.assertEquals(article.tags, Set.of("one", "two"));
   }
@@ -153,13 +159,7 @@ class ArticleControllerTest {
         HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
     Assertions.assertEquals(fail.statusCode(), 404);
 
-    HttpResponse<String> response = HttpClient.newHttpClient().send(
-        HttpRequest
-            .newBuilder()
-            .POST(HttpRequest.BodyPublishers.ofString("{\"name\": \"meow\", \"tags\": [\"one\", \"two\"]}"))
-            .uri(URI.create("http://localhost:%d/api/articles/add".formatted(service.port())))
-            .build(),
-        HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+    HttpResponse<String> response = createArticle(service, objectMapper, "meow", Set.of("one", "two"));
     Article article = objectMapper.readValue(response.body(), Article.class);
     Assertions.assertEquals(article.name, "meow");
     Assertions.assertEquals(article.tags, Set.of("one", "two"));
@@ -178,39 +178,15 @@ class ArticleControllerTest {
         objectMapper);
     articleController.init();
 
-    HttpClient.newHttpClient().send(
-        HttpRequest
-            .newBuilder()
-            .POST(HttpRequest.BodyPublishers.ofString("{\"name\": \"meow\", \"tags\": [\"one\", \"two\"]}"))
-            .uri(URI.create("http://localhost:%d/api/articles/add".formatted(service.port())))
-            .build(),
-        HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+    createArticle(service, objectMapper, "meow", Set.of("one", "two"));
 
-    HttpResponse<String> fail = HttpClient.newHttpClient().send(
-        HttpRequest
-            .newBuilder()
-            .DELETE()
-            .uri(URI.create("http://localhost:%d/api/articles/delete/dsf12".formatted(service.port())))
-            .build(),
-        HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+    HttpResponse<String> fail = deleteArticle(service, objectMapper, "dsf12");
     Assertions.assertEquals(fail.statusCode(), 404);
 
-    fail = HttpClient.newHttpClient().send(
-        HttpRequest
-            .newBuilder()
-            .DELETE()
-            .uri(URI.create("http://localhost:%d/api/articles/delete/3".formatted(service.port())))
-            .build(),
-        HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+    fail = deleteArticle(service, objectMapper, "3");
     Assertions.assertEquals(fail.statusCode(), 404);
 
-    HttpResponse<String> response = HttpClient.newHttpClient().send(
-        HttpRequest
-            .newBuilder()
-            .DELETE()
-            .uri(URI.create("http://localhost:%d/api/articles/delete/1".formatted(service.port())))
-            .build(),
-        HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+    HttpResponse<String> response = deleteArticle(service, objectMapper, "1");
     Assertions.assertEquals(response.statusCode(), 200);
   }
 
@@ -227,47 +203,18 @@ class ArticleControllerTest {
         objectMapper);
     articleController.init();
 
-    HttpClient.newHttpClient().send(
-        HttpRequest
-            .newBuilder()
-            .POST(HttpRequest.BodyPublishers.ofString("{\"name\": \"meow\", \"tags\": [\"one\", \"two\"]}"))
-            .uri(URI.create("http://localhost:%d/api/articles/add".formatted(service.port())))
-            .build(),
-        HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+    createArticle(service, objectMapper, "meow", Set.of("one", "two"));
 
-    HttpResponse<String> fail = HttpClient.newHttpClient().send(
-        HttpRequest
-            .newBuilder()
-            .POST(HttpRequest.BodyPublishers.ofString("{\"name\": \"meow\", \"tags\": [\"one\", \"two\"]}"))
-            .uri(URI.create("http://localhost:%d/api/articles/edit/dsf12".formatted(service.port())))
-            .build(),
-        HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+
+    HttpResponse<String> fail = editArticle(service, objectMapper, Map.of("name", "meow", "tags", Set.of("one", "two")), "dsf12");
     Assertions.assertEquals(fail.statusCode(), 404);
 
-    fail = HttpClient.newHttpClient().send(
-        HttpRequest
-            .newBuilder()
-            .POST(HttpRequest.BodyPublishers.ofString("{\"name\": \"meow\", \"tags\": [\"one\", \"two\"]}"))
-            .uri(URI.create("http://localhost:%d/api/articles/edit/3".formatted(service.port())))
-            .build(),
-        HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+    fail = editArticle(service, objectMapper, Map.of("name", "meow", "tags", Set.of("one", "two")), "3");
     Assertions.assertEquals(fail.statusCode(), 404);
 
-    HttpClient.newHttpClient().send(
-        HttpRequest
-            .newBuilder()
-            .POST(HttpRequest.BodyPublishers.ofString("{\"name\": \"meowmeow\", \"tags\": [\"one\"], \"add\": true, \"commentContent\": \"meow\"}"))
-            .uri(URI.create("http://localhost:%d/api/articles/edit/1".formatted(service.port())))
-            .build(),
-        HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+    editArticle(service, objectMapper, Map.of("name", "meowmeow", "tags", Set.of("one"), "add", true, "commentContent", "meow"), "1");
 
-    HttpResponse<String> response = HttpClient.newHttpClient().send(
-        HttpRequest
-            .newBuilder()
-            .GET()
-            .uri(URI.create("http://localhost:%d/api/articles/1".formatted(service.port())))
-            .build(),
-        HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+    HttpResponse<String> response = getArticle(service, objectMapper, "1");
     Article article = objectMapper.readValue(response.body(), Article.class);
     Assertions.assertEquals(article.name, "meowmeow");
     Assertions.assertEquals(article.tags, Set.of("one"));
