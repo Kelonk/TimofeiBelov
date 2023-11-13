@@ -67,6 +67,16 @@ class ArticleControllerTest {
     return objectMapper.readValue(response.body(), new TypeReference<List<Article>>() {});
   }
 
+  private HttpResponse<String> getArticles(Service service) throws Exception {
+    return HttpClient.newHttpClient().send(
+        HttpRequest
+            .newBuilder()
+            .GET()
+            .uri(URI.create("http://localhost:%d/articles".formatted(service.port())))
+            .build(),
+        HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+  }
+
   private HttpResponse<String> getArticle(Service service, ObjectMapper objectMapper, String id) throws Exception {
     return HttpClient.newHttpClient().send(
         HttpRequest
@@ -98,15 +108,18 @@ class ArticleControllerTest {
         articleRepository,
         commentRepository,
         service,
-        objectMapper);
+        objectMapper,
+        TemplateFactory.freeMarkerEngine());
     articleController.init();
 
     createArticle(service, objectMapper, "meow", Set.of("one", "two"));
     List<Article> articles = getArticles(service, objectMapper);
+    HttpResponse<String> html = getArticles(service);
 
     Assertions.assertEquals(articles.size(), 1);
     Assertions.assertEquals(articles.get(0).name, "meow");
     Assertions.assertEquals(articles.get(0).tags, Set.of("one", "two"));
+    Assertions.assertTrue(html.body().contains("meow"));
   }
 
   @Test
@@ -119,7 +132,8 @@ class ArticleControllerTest {
         articleRepository,
         commentRepository,
         service,
-        objectMapper);
+        objectMapper,
+        TemplateFactory.freeMarkerEngine());
     articleController.init();
 
     createArticle(service, objectMapper, "meow", Set.of("one", "two"));
@@ -147,7 +161,8 @@ class ArticleControllerTest {
         articleRepository,
         commentRepository,
         service,
-        objectMapper);
+        objectMapper,
+        TemplateFactory.freeMarkerEngine());
     articleController.init();
 
     HttpResponse<String> fail = HttpClient.newHttpClient().send(
@@ -175,7 +190,8 @@ class ArticleControllerTest {
         articleRepository,
         commentRepository,
         service,
-        objectMapper);
+        objectMapper,
+        TemplateFactory.freeMarkerEngine());
     articleController.init();
 
     createArticle(service, objectMapper, "meow", Set.of("one", "two"));
@@ -200,7 +216,8 @@ class ArticleControllerTest {
         articleRepository,
         commentRepository,
         service,
-        objectMapper);
+        objectMapper,
+        TemplateFactory.freeMarkerEngine());
     articleController.init();
 
     createArticle(service, objectMapper, "meow", Set.of("one", "two"));

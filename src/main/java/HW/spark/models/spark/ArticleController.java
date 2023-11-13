@@ -2,14 +2,19 @@ package HW.spark.models.spark;
 
 import HW.spark.models.holders.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import spark.ModelAndView;
 import spark.Request;
 import spark.Response;
 import spark.Service;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
+import spark.template.freemarker.FreeMarkerEngine;
 
 public class ArticleController implements Controller{
   private final Logger log;
@@ -17,22 +22,26 @@ public class ArticleController implements Controller{
   private final CommentRepository commentRepository;
   private final Service service;
   private final ObjectMapper objectMapper;
+  private final FreeMarkerEngine freeMarkerEngine;
 
   public ArticleController(Logger log,
                            ArticleRepository articleRepository,
                            CommentRepository commentRepository,
                            Service service,
-                           ObjectMapper objectMapper) {
+                           ObjectMapper objectMapper,
+                           FreeMarkerEngine freeMarkerEngine) {
     this.log = log;
     this.articleRepository = articleRepository;
     this.commentRepository = commentRepository;
     this.service = service;
     this.objectMapper = objectMapper;
+    this.freeMarkerEngine = freeMarkerEngine;
     initEndpoints();
   }
 
   private void initEndpoints(){
     listArticlesEndpoint();
+    listArticlesDisplayEndpoint();
     searchArticleEndpoint();
     addArticleEndpoint();
     deleteArticleEndpoint();
@@ -40,6 +49,29 @@ public class ArticleController implements Controller{
     DefaultControllerFunctions.internalErrorHandle(service, log);
     DefaultControllerFunctions.parseExceptionHandle(service, log);
     DefaultControllerFunctions.notFoundExceptionHandle(service, log);
+  }
+
+  private void listArticlesDisplayEndpoint(){
+    service.get("/articles", (Request request, Response response) -> {
+      log.debug("List of articles requested");
+      response.type("html");
+
+      Map<String, Object> model = new HashMap<>();
+      var articlesMap = articleRepository.getArticles().stream()
+          .map(
+          article -> Map.of(
+              "name", article.name,
+              "tags", article.tags,
+              "comments", article.comments.stream()
+                  .map(comment -> Map.of("content", comment.content))
+                  .collect(Collectors.toList()))
+          )
+          .collect(Collectors.toList());
+      model.put("articles", articlesMap);
+      var putted = new ModelAndView(model, "articles.ftl");
+      String render = freeMarkerEngine.render(putted);
+      return render;
+    });
   }
 
   private void listArticlesEndpoint(){

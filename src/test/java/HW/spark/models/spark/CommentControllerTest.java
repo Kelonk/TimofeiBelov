@@ -46,7 +46,8 @@ public class CommentControllerTest {
         articleRepository,
         commentRepository,
         service,
-        objectMapper);
+        objectMapper,
+        TemplateFactory.freeMarkerEngine());
     articleController.init();
 
     HttpClient.newHttpClient().send(
