@@ -14,6 +14,8 @@ import java.util.stream.IntStream;
 
 public class Main {
 
+  // arguments to pass to the app
+  // from testFiles/from.txt to testFiles/to.txt filter testFiles/filter.txt
   public static void main(String[] args) {
     Map<String,String> map =
         IntStream.range(0, args.length/2)
