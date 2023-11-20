@@ -1,6 +1,6 @@
 ## Private
 This repository is used for HW and etcetera student stuff\
-Mostly used for Java + github learning
+Mostly used for Java + github learning + related things such as PostgreSQL
 ---
 ### Practice
 This section is dedication for practice with ".md"
