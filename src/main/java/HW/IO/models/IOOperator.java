@@ -18,8 +18,8 @@ public class IOOperator {
   public void rewriteWithFilter(Predicate<String> predicate) throws IOException {
     logger.info("Request to rewrite with filter, from: " + source + " to: " + destination);
     try (
-        var from = new BufferedReader(new FileReader(DefaultIOOperations.getResourcePath(source)));
-        var to = new PrintWriter(new FileWriter(DefaultIOOperations.getResourcePath(destination)))
+        var from = new BufferedReader(new FileReader(DefaultIOOperations.getPath(source)));
+        var to = new PrintWriter(new FileWriter(DefaultIOOperations.getPath(destination)))
     ) {
       from.lines()
           .filter(Predicate.not(predicate))
