@@ -70,6 +70,7 @@ class MainTest {
   @Test
   void checkOfMainFilter() throws IOException {
     Path dir = Files.createTempDirectory("tempDir");
+    dir.toFile().deleteOnExit();
     var test = generateFilterTrio(dir.toFile());
     Main.main(test.consoleArgs.entrySet().stream().<String>mapMulti((entry, consumer) -> {
       consumer.accept(entry.getKey().key);
@@ -87,6 +88,7 @@ class MainTest {
   @Test
   void checkOfMainFilterConcurrent() throws IOException, InterruptedException {
     Path dir = Files.createTempDirectory("tempDir");
+    dir.toFile().deleteOnExit();
     int threads = 10;
     ExecutorService service = Executors.newFixedThreadPool(threads);
     CountDownLatch latch = new CountDownLatch(threads);
