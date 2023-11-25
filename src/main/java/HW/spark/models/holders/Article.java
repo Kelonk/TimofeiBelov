@@ -10,8 +10,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class Article {
+  public static int trendingThreshold = 3;
+
   public final String name;
   public final ArticleID id;
+  public final boolean trending;
   public final Set<String> tags;
   public final List<Comment> comments;
 
@@ -23,6 +26,7 @@ public class Article {
   ){
     this.name = name;
     this.id = id;
+    this.trending = comments.size() > trendingThreshold;
     this.tags = tags;
     this.comments = comments;
   }
@@ -33,6 +37,7 @@ public class Article {
     }
     this.name = name;
     this.id = generateID(id);
+    this.trending = comments.size() > trendingThreshold;
     this.tags = tags;
     this.comments = comments;
   }
@@ -43,6 +48,7 @@ public class Article {
     }
     this.name = name;
     this.id = id;
+    this.trending = comments.size() > trendingThreshold;
     this.tags = tags;
     this.comments = comments;
   }

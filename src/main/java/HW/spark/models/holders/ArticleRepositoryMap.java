@@ -26,6 +26,14 @@ public class ArticleRepositoryMap implements ArticleRepository {
   }
 
   @Override
+  public void addArticles(List<Article> articles) {
+    for (Article article :
+        articles) {
+      addArticle(article);
+    }
+  }
+
+  @Override
   public List<Article> getArticles(){
     return articles.values().stream().toList();
   }

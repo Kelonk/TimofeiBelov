@@ -36,6 +36,16 @@ class ArticleControllerTest {
         HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
   }
 
+  private HttpResponse<String> createArticles(Service service, ObjectMapper objectMapper, List<ArticleRecord> articlesToCreate) throws Exception {
+    return HttpClient.newHttpClient().send(
+        HttpRequest
+            .newBuilder()
+            .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(articlesToCreate)))
+            .uri(URI.create("http://localhost:%d/api/articles/addList".formatted(service.port())))
+            .build(),
+        HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+  }
+
   private HttpResponse<String> deleteArticle(Service service, ObjectMapper objectMapper, String id) throws Exception {
     return HttpClient.newHttpClient().send(
         HttpRequest

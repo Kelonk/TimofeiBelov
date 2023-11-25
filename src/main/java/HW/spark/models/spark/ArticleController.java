@@ -1,15 +1,16 @@
 package HW.spark.models.spark;
 
 import HW.spark.models.holders.*;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import spark.ModelAndView;
 import spark.Request;
 import spark.Response;
 import spark.Service;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -44,6 +45,7 @@ public class ArticleController implements Controller{
     listArticlesDisplayEndpoint();
     searchArticleEndpoint();
     addArticleEndpoint();
+    addArticleListEndpoint();
     deleteArticleEndpoint();
     editArticleEndpoint();
     DefaultControllerFunctions.internalErrorHandle(service, log);
@@ -116,6 +118,26 @@ public class ArticleController implements Controller{
           articleRepository.getNewID());
       articleRepository.addArticle(article);
       return objectMapper.writeValueAsString(article);
+    });
+  }
+
+  private void addArticleListEndpoint(){
+    service.post("/api/articles/addList", (Request request, Response response) -> {
+      log.debug("Request to add list of articles");
+      response.type("application/json");
+
+      String body = request.body();
+      List<ArticleRecord> articlesCreateRequest;
+      try {
+        articlesCreateRequest = objectMapper.readValue(body, new TypeReference<List<ArticleRecord>>() {});
+      } catch (Exception e) {
+        throw new DefaultControllerFunctions.ParseError(request.body(), "Couldn't make articles from body");
+      }
+      List<Article> articles = articlesCreateRequest.stream().map(record ->
+          new Article(record.name(), record.tags(), new ArrayList<>(), articleRepository.getNewID()))
+          .toList();
+      articleRepository.addArticles(articles);
+      return objectMapper.writeValueAsString(articles);
     });
   }
 
