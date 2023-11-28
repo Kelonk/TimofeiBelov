@@ -59,15 +59,15 @@ public class ArticleRepositoryTestDefault {
     Assertions.assertTrue(repositoryToCheck.findArticle(article1.id.getId()).isEmpty());
   }
 
-  public static void replace(ArticleRepository repositoryToCheck){
+  public static void edit(ArticleRepository repositoryToCheck){
     AtomicLong counter = new AtomicLong(0);
     String debugValue1 = "meow";
     String debugValue2 = "meow2";
     Article article1 = new Article(debugValue1, Set.of(), List.of(), counter.incrementAndGet());
-    Article newArticle = article1.newName(debugValue2);
+    ArticleEditRecord editRequest = new ArticleEditRecord(debugValue2, null, false, null);
     repositoryToCheck.addArticle(article1);
-    repositoryToCheck.replace(newArticle);
-    Assertions.assertEquals(repositoryToCheck.getArticles().get(0), newArticle);
+    repositoryToCheck.edit(editRequest, article1, null);
+    Assertions.assertEquals(repositoryToCheck.getArticles().get(0).name, debugValue2);
   }
 
   public static void getNewID(ArticleRepository repositoryToCheck) {

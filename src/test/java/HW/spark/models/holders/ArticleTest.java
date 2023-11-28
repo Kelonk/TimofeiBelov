@@ -1,6 +1,7 @@
 package HW.spark.models.holders;
 
 import HW.spark.models.id.ArticleID;
+import org.junit.BeforeClass;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class ArticleTest {
   private AtomicLong counter;
+
+  @BeforeClass
 
   @BeforeEach
   void reset(){

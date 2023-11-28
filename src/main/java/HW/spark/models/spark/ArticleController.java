@@ -176,22 +176,7 @@ public class ArticleController implements Controller{
       if (article.isEmpty()) {
         throw new DefaultControllerFunctions.NotLocated(id, "No article with id: " + id);
       } else {
-        Article newArticle = article.get();
-        if (articleEditRequest.name() != null) {
-          newArticle = newArticle.newName(articleEditRequest.name());
-        }
-        if (articleEditRequest.tags() != null) {
-          newArticle = newArticle.newTags(articleEditRequest.tags());
-        }
-        if (articleEditRequest.add()) {
-          Comment comment = new Comment(
-              newArticle.id,
-              articleEditRequest.commentContent(),
-              commentRepository.getNewID());
-          newArticle = newArticle.attachComment(comment);
-          commentRepository.addComment(comment);
-        }
-        articleRepository.replace(newArticle);
+        Article newArticle = articleRepository.edit(articleEditRequest, article.get(), commentRepository);
         return objectMapper.writeValueAsString(newArticle);
       }
     });
