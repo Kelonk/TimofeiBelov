@@ -10,6 +10,12 @@ class ArticleRepositoryMapTest {
   }
 
   @Test
+  void addArticles() {
+    ArticleRepository articleRepository = new ArticleRepositoryMap();
+    ArticleRepositoryTestDefault.addArticles(articleRepository);
+  }
+
+  @Test
   void getArticles() {
     ArticleRepository articleRepository = new ArticleRepositoryMap();
     ArticleRepositoryTestDefault.getArticles(articleRepository);

@@ -41,6 +41,12 @@ class ArticleRepositoryDBTest {
   }
 
   @Test
+  void addArticles() {
+    ArticleRepository articleRepository = new ArticleRepositoryDB(jdbi);
+    ArticleRepositoryTestDefault.addArticles(articleRepository);
+  }
+
+  @Test
   void getArticles() {
     ArticleRepository articleRepository = new ArticleRepositoryDB(jdbi);
     ArticleRepositoryTestDefault.getArticles(articleRepository);

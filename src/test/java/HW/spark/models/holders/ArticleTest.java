@@ -57,5 +57,15 @@ public class ArticleTest {
     Assertions.assertEquals(article.comments, List.of());
     Assertions.assertEquals(newComment.comments, List.of(comment));
     Assertions.assertEquals(noComment.comments, List.of());
+
+    Assertions.assertThrows(
+        IllegalArgumentException.class,
+        () -> article.newName(null));
+    Assertions.assertThrows(
+        IllegalArgumentException.class,
+        () -> article.newTags(null));
+    Assertions.assertFalse(article.equals(comment));
+    Assertions.assertEquals(newComment.attachComment(comment), newComment);
+    Assertions.assertEquals(noComment.deleteComment(2), noComment);
   }
 }

@@ -18,6 +18,18 @@ public class ArticleRepositoryTestDefault {
     Assertions.assertTrue(repositoryToCheck.getArticles().contains(article1));
   }
 
+  public static void addArticles(ArticleRepository repositoryToCheck){
+    AtomicLong counter = new AtomicLong(0);
+    String debugValue1 = "meow";
+    String debugValue2 = "meowmeow";
+    Article article1 = new Article(debugValue1, Set.of(), List.of(), counter.incrementAndGet());
+    Article article2 = new Article(debugValue2, Set.of(), List.of(), counter.incrementAndGet());
+    Assertions.assertFalse(repositoryToCheck.getArticles().contains(article1));
+    repositoryToCheck.addArticles(List.of(article1, article2));
+    Assertions.assertTrue(repositoryToCheck.getArticles().contains(article1));
+    Assertions.assertTrue(repositoryToCheck.getArticles().contains(article2));
+  }
+
   public static void getArticles(ArticleRepository repositoryToCheck){
     AtomicLong counter = new AtomicLong(0);
     String debugValue1 = "meow";
@@ -42,6 +54,20 @@ public class ArticleRepositoryTestDefault {
     Article article1 = new Article(debugValue1, Set.of(), List.of(), counter.incrementAndGet());
     repositoryToCheck.addArticle(article1);
     Assertions.assertEquals(repositoryToCheck.findArticle(article1.id.getId()).get(), article1);
+    repositoryToCheck.delete(article1.id, new CommentRepository() {
+      @Override
+      public void addComment(Comment comment) {}
+      @Override
+      public List<Comment> getComments() {return null;}
+      @Override
+      public Optional<Comment> findComment(long id) {return Optional.empty();}
+      @Override
+      public void delete(CommentID id) {}
+      @Override
+      public void replace(Comment comment) {}
+      @Override
+      public long getNewID() {return 0;}
+    });
     repositoryToCheck.delete(article1.id, new CommentRepository() {
       @Override
       public void addComment(Comment comment) {}
