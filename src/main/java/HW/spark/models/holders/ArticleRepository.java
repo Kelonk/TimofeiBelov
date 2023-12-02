@@ -13,6 +13,5 @@ public interface ArticleRepository {
   public void delete(ArticleID id, CommentRepository commentRepository);
   public Article edit(ArticleEditRecord editRequest, Article article, CommentRepository commentRepository);
   public long getNewID();
-
   public void replace(Article newArticle);
 }
