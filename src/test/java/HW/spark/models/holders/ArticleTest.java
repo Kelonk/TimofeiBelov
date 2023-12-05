@@ -1,6 +1,7 @@
 package HW.spark.models.holders;
 
 import HW.spark.models.id.ArticleID;
+import org.junit.BeforeClass;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class ArticleTest {
   private AtomicLong counter;
+
+  @BeforeClass
 
   @BeforeEach
   void reset(){
@@ -54,5 +57,15 @@ public class ArticleTest {
     Assertions.assertEquals(article.comments, List.of());
     Assertions.assertEquals(newComment.comments, List.of(comment));
     Assertions.assertEquals(noComment.comments, List.of());
+
+    Assertions.assertThrows(
+        IllegalArgumentException.class,
+        () -> article.newName(null));
+    Assertions.assertThrows(
+        IllegalArgumentException.class,
+        () -> article.newTags(null));
+    Assertions.assertFalse(article.equals(comment));
+    Assertions.assertEquals(newComment.attachComment(comment), newComment);
+    Assertions.assertEquals(noComment.deleteComment(2), noComment);
   }
 }

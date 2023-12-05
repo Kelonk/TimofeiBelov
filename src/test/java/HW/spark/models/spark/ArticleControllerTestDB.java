@@ -3,12 +3,13 @@ package HW.spark.models.spark;
 import HW.spark.models.holders.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
+import org.flywaydb.core.Flyway;
+import org.jdbi.v3.core.Jdbi;
+import org.junit.jupiter.api.*;
 import org.slf4j.LoggerFactory;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import spark.Service;
 
 import java.net.URI;
@@ -18,13 +19,34 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-class ArticleControllerTest {
+@Testcontainers
+public class ArticleControllerTestDB {
   private Service service;
+
+  @Container
+  public static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>("postgres:13");
+
+  private static Jdbi jdbi;
+
+  @BeforeAll
+  static void beforeAll() {
+    String postgresJdbcUrl = POSTGRES.getJdbcUrl();
+    Flyway flyway =
+        Flyway.configure()
+            .outOfOrder(true)
+            .locations("classpath:db/migrations")
+            .dataSource(postgresJdbcUrl, POSTGRES.getUsername(), POSTGRES.getPassword())
+            .load();
+    flyway.migrate();
+    jdbi = Jdbi.create(postgresJdbcUrl, POSTGRES.getUsername(), POSTGRES.getPassword());
+  }
+
+  @BeforeEach
+  void beforeEach() {
+    jdbi.useTransaction(handle -> handle.createUpdate("DELETE FROM comment; DELETE FROM article;").execute());
+  }
 
   private HttpResponse<String> createArticle(Service service, ObjectMapper objectMapper, String name, Set<String> tags) throws Exception {
     return HttpClient.newHttpClient().send(
@@ -111,8 +133,8 @@ class ArticleControllerTest {
   @Test
   void articleControllerTestList() throws Exception{
     ObjectMapper objectMapper = new ObjectMapper();
-    ArticleRepository articleRepository = new ArticleRepositoryMap();
-    CommentRepository commentRepository = new CommentRepositoryMap();
+    ArticleRepository articleRepository = new ArticleRepositoryDB(jdbi);
+    CommentRepository commentRepository = new CommentRepositoryDB(jdbi);
     ArticleController articleController = new ArticleController(
         LoggerFactory.getLogger(ArticleController.class),
         articleRepository,
@@ -135,8 +157,8 @@ class ArticleControllerTest {
   @Test
   void articleControllerTestSearch() throws Exception{
     ObjectMapper objectMapper = new ObjectMapper();
-    ArticleRepository articleRepository = new ArticleRepositoryMap();
-    CommentRepository commentRepository = new CommentRepositoryMap();
+    ArticleRepository articleRepository = new ArticleRepositoryDB(jdbi);
+    CommentRepository commentRepository = new CommentRepositoryDB(jdbi);
     ArticleController articleController = new ArticleController(
         LoggerFactory.getLogger(ArticleController.class),
         articleRepository,
@@ -164,8 +186,8 @@ class ArticleControllerTest {
   @Test
   void articleControllerTestAdd() throws Exception{
     ObjectMapper objectMapper = new ObjectMapper();
-    ArticleRepository articleRepository = new ArticleRepositoryMap();
-    CommentRepository commentRepository = new CommentRepositoryMap();
+    ArticleRepository articleRepository = new ArticleRepositoryDB(jdbi);
+    CommentRepository commentRepository = new CommentRepositoryDB(jdbi);
     ArticleController articleController = new ArticleController(
         LoggerFactory.getLogger(ArticleController.class),
         articleRepository,
@@ -193,8 +215,8 @@ class ArticleControllerTest {
   @Test
   void articleControllerTestAddList() throws Exception{
     ObjectMapper objectMapper = new ObjectMapper();
-    ArticleRepository articleRepository = new ArticleRepositoryMap();
-    CommentRepository commentRepository = new CommentRepositoryMap();
+    ArticleRepository articleRepository = new ArticleRepositoryDB(jdbi);
+    CommentRepository commentRepository = new CommentRepositoryDB(jdbi);
     ArticleController articleController = new ArticleController(
         LoggerFactory.getLogger(ArticleController.class),
         articleRepository,
@@ -223,8 +245,8 @@ class ArticleControllerTest {
   @Test
   void articleControllerTestDelete() throws Exception{
     ObjectMapper objectMapper = new ObjectMapper();
-    ArticleRepository articleRepository = new ArticleRepositoryMap();
-    CommentRepository commentRepository = new CommentRepositoryMap();
+    ArticleRepository articleRepository = new ArticleRepositoryDB(jdbi);
+    CommentRepository commentRepository = new CommentRepositoryDB(jdbi);
     ArticleController articleController = new ArticleController(
         LoggerFactory.getLogger(ArticleController.class),
         articleRepository,
@@ -249,8 +271,8 @@ class ArticleControllerTest {
   @Test
   void articleControllerTestEdit() throws Exception{
     ObjectMapper objectMapper = new ObjectMapper();
-    ArticleRepository articleRepository = new ArticleRepositoryMap();
-    CommentRepository commentRepository = new CommentRepositoryMap();
+    ArticleRepository articleRepository = new ArticleRepositoryDB(jdbi);
+    CommentRepository commentRepository = new CommentRepositoryDB(jdbi);
     ArticleController articleController = new ArticleController(
         LoggerFactory.getLogger(ArticleController.class),
         articleRepository,

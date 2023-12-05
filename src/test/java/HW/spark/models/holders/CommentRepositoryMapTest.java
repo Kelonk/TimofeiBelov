@@ -8,36 +8,36 @@ class CommentRepositoryMapTest {
   @Test
   void addComment() {
     CommentRepository commentRepository = new CommentRepositoryMap();
-    CommentRepositoryTestDefault.addComment(commentRepository);
+    CommentRepositoryTestDefault.addComment(commentRepository, null);
   }
 
   @Test
   void getComments() {
     CommentRepository commentRepository = new CommentRepositoryMap();
-    CommentRepositoryTestDefault.getComments(commentRepository);
+    CommentRepositoryTestDefault.getComments(commentRepository, null);
   }
 
   @Test
   void findComment() {
     CommentRepository commentRepository = new CommentRepositoryMap();
-    CommentRepositoryTestDefault.findComment(commentRepository);
+    CommentRepositoryTestDefault.findComment(commentRepository, null);
   }
 
   @Test
   void delete() {
     CommentRepository commentRepository = new CommentRepositoryMap();
-    CommentRepositoryTestDefault.delete(commentRepository);
+    CommentRepositoryTestDefault.delete(commentRepository, null);
   }
 
   @Test
   void replace() {
     CommentRepository commentRepository = new CommentRepositoryMap();
-    CommentRepositoryTestDefault.replace(commentRepository);
+    CommentRepositoryTestDefault.replace(commentRepository, null);
   }
 
   @Test
   void getNewID(){
     CommentRepository commentRepository = new CommentRepositoryMap();
-    CommentRepositoryTestDefault.getNewID(commentRepository);
+    CommentRepositoryTestDefault.getNewID(commentRepository, null);
   }
 }

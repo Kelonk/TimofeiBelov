@@ -55,8 +55,8 @@ public class Comment {
   public boolean equals(Object obj) {
     if (obj instanceof Comment){
       return (((Comment) obj).id.getId() == id.getId()
-          && Objects.equals(((Comment) obj).content, content)
-          && ((Comment) obj).articleID.equals(articleID));
+          && ((Comment) obj).content.equals(content)
+          && ((Comment) obj).articleID.getId() == articleID.getId());
     } else {
       return false;
     }

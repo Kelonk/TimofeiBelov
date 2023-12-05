@@ -56,6 +56,8 @@ public class CommentController implements Controller {
           articleRepository.replace(newArticle);
         } catch (NoSuchElementException e) {
           return objectMapper.writeValueAsString(Map.of("Message", "Comment removed but no attachment to article"));
+        } catch (RuntimeException e) {
+          return objectMapper.writeValueAsString(Map.of("Message", e.getMessage()));
         } finally {
           commentRepository.delete(comment.get().id);
         }

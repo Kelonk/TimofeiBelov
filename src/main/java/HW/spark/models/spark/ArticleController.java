@@ -1,15 +1,16 @@
 package HW.spark.models.spark;
 
 import HW.spark.models.holders.*;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import spark.ModelAndView;
 import spark.Request;
 import spark.Response;
 import spark.Service;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -44,6 +45,7 @@ public class ArticleController implements Controller{
     listArticlesDisplayEndpoint();
     searchArticleEndpoint();
     addArticleEndpoint();
+    addArticleListEndpoint();
     deleteArticleEndpoint();
     editArticleEndpoint();
     DefaultControllerFunctions.internalErrorHandle(service, log);
@@ -119,6 +121,26 @@ public class ArticleController implements Controller{
     });
   }
 
+  private void addArticleListEndpoint(){
+    service.post("/api/articles/addList", (Request request, Response response) -> {
+      log.debug("Request to add list of articles");
+      response.type("application/json");
+
+      String body = request.body();
+      List<ArticleRecord> articlesCreateRequest;
+      try {
+        articlesCreateRequest = objectMapper.readValue(body, new TypeReference<List<ArticleRecord>>() {});
+      } catch (Exception e) {
+        throw new DefaultControllerFunctions.ParseError(request.body(), "Couldn't make articles from body");
+      }
+      List<Article> articles = articlesCreateRequest.stream().map(record ->
+          new Article(record.name(), record.tags(), new ArrayList<>(), articleRepository.getNewID()))
+          .toList();
+      articleRepository.addArticles(articles);
+      return objectMapper.writeValueAsString(articles);
+    });
+  }
+
   private void deleteArticleEndpoint(){
     service.delete("/api/articles/delete/:articleID", (Request request, Response response) -> {
       log.debug("Article delete request");
@@ -154,22 +176,7 @@ public class ArticleController implements Controller{
       if (article.isEmpty()) {
         throw new DefaultControllerFunctions.NotLocated(id, "No article with id: " + id);
       } else {
-        Article newArticle = article.get();
-        if (articleEditRequest.name() != null) {
-          newArticle = newArticle.newName(articleEditRequest.name());
-        }
-        if (articleEditRequest.tags() != null) {
-          newArticle = newArticle.newTags(articleEditRequest.tags());
-        }
-        if (articleEditRequest.add()) {
-          Comment comment = new Comment(
-              newArticle.id,
-              articleEditRequest.commentContent(),
-              commentRepository.getNewID());
-          newArticle = newArticle.attachComment(comment);
-          commentRepository.addComment(comment);
-        }
-        articleRepository.replace(newArticle);
+        Article newArticle = articleRepository.edit(articleEditRequest, article.get(), commentRepository);
         return objectMapper.writeValueAsString(newArticle);
       }
     });

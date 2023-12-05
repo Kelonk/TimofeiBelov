@@ -5,13 +5,18 @@ import HW.spark.models.id.CommentID;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class Article {
+  public static int trendingThreshold = loadThresholdProperty();
+
   public final String name;
   public final ArticleID id;
+  public final boolean trending;
   public final Set<String> tags;
   public final List<Comment> comments;
 
@@ -23,6 +28,7 @@ public class Article {
   ){
     this.name = name;
     this.id = id;
+    this.trending = comments.size() > trendingThreshold;
     this.tags = tags;
     this.comments = comments;
   }
@@ -33,6 +39,7 @@ public class Article {
     }
     this.name = name;
     this.id = generateID(id);
+    this.trending = comments.size() > trendingThreshold;
     this.tags = tags;
     this.comments = comments;
   }
@@ -43,6 +50,7 @@ public class Article {
     }
     this.name = name;
     this.id = id;
+    this.trending = comments.size() > trendingThreshold;
     this.tags = tags;
     this.comments = comments;
   }
@@ -95,5 +103,10 @@ public class Article {
     } else {
       return false;
     }
+  }
+
+  private static int loadThresholdProperty(){
+    Config config = ConfigFactory.load();
+    return config.getInt("app.rules.article.trending.threshold");
   }
 }

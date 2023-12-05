@@ -2,13 +2,17 @@ package HW.spark.models.holders;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class ArticleRepositoryMapTest {
   @Test
   void addArticle() {
     ArticleRepository articleRepository = new ArticleRepositoryMap();
     ArticleRepositoryTestDefault.addArticle(articleRepository);
+  }
+
+  @Test
+  void addArticles() {
+    ArticleRepository articleRepository = new ArticleRepositoryMap();
+    ArticleRepositoryTestDefault.addArticles(articleRepository);
   }
 
   @Test
@@ -30,9 +34,9 @@ class ArticleRepositoryMapTest {
   }
 
   @Test
-  void replace() {
+  void edit() {
     ArticleRepository articleRepository = new ArticleRepositoryMap();
-    ArticleRepositoryTestDefault.replace(articleRepository);
+    ArticleRepositoryTestDefault.edit(articleRepository);
   }
 
   @Test
